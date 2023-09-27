@@ -1,0 +1,14 @@
+<!doctype html>
+<head>
+<title> Привет, мир!</title>
+</head>
+<body>
+
+<script type="module">
+  import * as M from "./main.cl.js"
+  M.create_main({}).output.changed.subscribe( elem => {
+    document.documentElement.appendChild( elem )
+  })
+</script>
+
+</body>
