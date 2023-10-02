@@ -6,9 +6,11 @@ obj "element"
         tag: cell "div"
         text: cell
         style: cell
-        dom_parent: cell // @self.parent
+        //dom_parent: cell // @self.parent
         // это cl-объект с output в котором dom
         cf&: cell // дети
+        // все-бы rest-параметры прокинуть в dom..
+        named_rest**: cell
     }
 
     output: cell
@@ -121,7 +123,29 @@ obj "element"
 
     react @self.style @set_style    
 
+    // передадим прочие именованные параметры напрямую в дом
+    xxy:= extract @self.named_rest
+    react @xxy {: val |
+         //console.log("see named-rest",val)
+         let dom = self.output.get()
+         for (let k in val) {
+            //console.log(k)
+            dom[ k ] = val[k]
+         }
+    :}
 
+
+}
+
+obj "input"
+{
+    in {
+        type: cell "range"
+        text: cell
+        named_rest**: cell
+    }
+
+    output := element "input" @text type=@type **named_rest
 }
 
 // создаёт канал из канала дом-события
@@ -144,11 +168,12 @@ obj "event"
 
         function setup() {
             forget()
+            console.log(333)
 
             if (!(src.is_set && name.is_set)) return
             let dom = src.get()
-            //console.log('dom-event setup. dom=',dom)
             let n = name.get()
+            //console.log('dom-event setup. dom=',dom,"n=",n)
             dom.addEventListener( n, handler )            
             forget = () => {
                 dom.removeEventListener( n, handler )
