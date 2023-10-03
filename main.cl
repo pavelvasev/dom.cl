@@ -79,10 +79,11 @@ obj "element"
         let parent = self
         let parent_dom = parent.output.get()        
         for (let child_dom of children) {
+            //console.log('checking ',child_dom)
             if (!(child_dom instanceof Element)) continue
             parent_dom.appendChild( child_dom )
         }
-    :}    
+    :}
 
     react @xx.output @sync_children
     xx: extract @child_elem_outputs
@@ -126,7 +127,7 @@ obj "element"
     // передадим прочие именованные параметры напрямую в дом
     xxy:= extract @self.named_rest
     react @xxy {: val |
-         //console.log("see named-rest",val)
+         console.log("see named-rest",val)
          let dom = self.output.get()
          for (let k in val) {
             //console.log(k)
@@ -135,17 +136,6 @@ obj "element"
     :}
 
 
-}
-
-obj "input"
-{
-    in {
-        type: cell "range"
-        text: cell
-        named_rest**: cell
-    }
-
-    output := element "input" @text type=@type **named_rest
 }
 
 // создаёт канал из канала дом-события
@@ -168,7 +158,7 @@ obj "event"
 
         function setup() {
             forget()
-            console.log(333)
+            //console.log(333)
 
             if (!(src.is_set && name.is_set)) return
             let dom = src.get()
@@ -186,4 +176,44 @@ obj "event"
 
         self.release.subscribe( () => forget() )
     :}
+}
+
+obj "input"
+{
+    in {
+        type: cell "range"
+        text: cell
+        style: cell
+        init_value: cell 1
+        named_rest**: cell
+    }
+    // кстати вопрос а зачем нам результат работы дом-элемента держать в output?
+    named_rest_values:= extract @named_rest
+    output := elem: element "input" @text @style type=@type value=@init_value **named_rest_values
+
+    is_element: cell
+
+    value: cell
+
+    bind @init_value @value // вот тут противоречие что у нас 2 источника получается для value..
+    // init_value и события от дом
+
+    
+    react (event @output "input") {: evt |
+        self.value.submit( evt.target.value )
+    :}
+}
+
+obj "checkbox" {
+    in {
+        init_value: cell true
+    }
+    output := input "checkbox" checked=@init_value
+    is_element: cell
+    value: cell
+    bind @init_value @value
+
+    react (event @output "change") {: evt |
+        self.value.submit( evt.target.checked ? true : false )
+    :}    
 }
