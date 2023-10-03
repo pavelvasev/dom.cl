@@ -86,7 +86,7 @@ obj "element"
     :}
 
     react @xx.output @sync_children
-    xx: extract @child_elem_outputs
+    xx: xtract @child_elem_outputs
     //react @child_elem_outputs { v| print "oooxxx=" @v }
 
     child_elem_outputs := apply {: children |
@@ -125,8 +125,8 @@ obj "element"
     react @self.style @set_style    
 
     // передадим прочие именованные параметры напрямую в дом
-    xxy:= extract @self.named_rest
-    react @xxy {: val |
+    
+    react @named_rest {: val |
          console.log("see named-rest",val)
          let dom = self.output.get()
          for (let k in val) {
@@ -188,8 +188,8 @@ obj "input"
         named_rest**: cell
     }
     // кстати вопрос а зачем нам результат работы дом-элемента держать в output?
-    named_rest_values:= extract @named_rest
-    output := elem: element "input" @text @style type=@type value=@init_value **named_rest_values
+    
+    output := elem: element "input" @text @style type=@type value=@init_value **named_rest
 
     is_element: cell
 
