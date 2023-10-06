@@ -13,11 +13,13 @@ obj "element"
         named_rest**: cell
     }
 
+    tree: tree_node
+
     output: cell
 
     // создаём объекты детей. в слоне теперь это надо делать явно.
     // вот бы эта x возвращала список. жить было бы проще
-    x := apply @cf @self
+    apply_children @cf
     // print "x=" @x
 
     init {:
@@ -40,6 +42,15 @@ obj "element"
         }
         f()
         tag.changed.subscribe( f )
+
+        self.release.subscribe( () => {
+            console.log("EEEEE")
+            let existing = output.is_set ? output.get() : null
+            if (existing) {
+                console.log("EEEEE2,existing",existing)
+                existing.remove()
+            }
+        } )
     :}
 /*
     func "append_child_dom" {: ch |
@@ -81,22 +92,23 @@ obj "element"
         for (let child_dom of children) {
             //console.log('checking ',child_dom)
             if (!(child_dom instanceof Element)) continue
+            console.log("sync_children appends",child_dom)
             parent_dom.appendChild( child_dom )
         }
     :}
 
     react @xx.output @sync_children
-    xx: xtract @child_elem_outputs
-    //react @child_elem_outputs { v| print "oooxxx=" @v }
+    xx: xtract @child_elem_outputs // этим мы вытащили output-ы
 
     child_elem_outputs := apply {: children |
         let res = []
         for (let ch of children) {
+            // todo вроде как не надо уже
             if (!ch.is_element) continue
             res.push( ch.output )
         }
         return res
-      :} @self.children
+      :} @self.tree.children
 
 /*
     child_elem_outputs := map @self.children {: ch | 
@@ -188,6 +200,8 @@ obj "input"
         named_rest**: cell
     }
     // кстати вопрос а зачем нам результат работы дом-элемента держать в output?
+
+    tree: tree_node // tree_child? неа нода - он же element в поддереве держит
     
     output := elem: element "input" @text @style type=@type value=@init_value **named_rest
 
@@ -208,6 +222,8 @@ obj "checkbox" {
     in {
         init_value: cell true
     }
+    tree: tree_node
+
     output := input "checkbox" checked=@init_value
     is_element: cell
     value: cell
