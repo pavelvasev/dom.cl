@@ -44,10 +44,10 @@ obj "element"
         tag.changed.subscribe( f )
 
         self.release.subscribe( () => {
-            console.log("EEEEE")
+            //console.log("EEEEE")
             let existing = output.is_set ? output.get() : null
             if (existing) {
-                console.log("EEEEE2,existing",existing)
+                //console.log("EEEEE2,existing - remove",existing,'self=',self+'')
                 existing.remove()
             }
         } )
@@ -92,7 +92,7 @@ obj "element"
         for (let child_dom of children) {
             //console.log('checking ',child_dom)
             if (!(child_dom instanceof Element)) continue
-            console.log("sync_children appends",child_dom)
+            //console.log("sync_children appends",child_dom)
             parent_dom.appendChild( child_dom )
         }
     :}
@@ -101,6 +101,7 @@ obj "element"
     xx: xtract @child_elem_outputs // этим мы вытащили output-ы
 
     child_elem_outputs := apply {: children |
+        //console.log("apply 1",self+'',children)
         let res = []
         for (let ch of children) {
             // todo вроде как не надо уже
@@ -139,7 +140,7 @@ obj "element"
     // передадим прочие именованные параметры напрямую в дом
     
     react @named_rest {: val |
-         console.log("see named-rest",val)
+         //console.log("see named-rest",val)
          let dom = self.output.get()
          for (let k in val) {
             //console.log(k)
@@ -204,6 +205,7 @@ obj "input"
     tree: tree_node // tree_child? неа нода - он же element в поддереве держит
     
     output := elem: element "input" @text @style type=@type value=@init_value **named_rest
+    // todo value отрабатывать самим, не грузить рест
 
     is_element: cell
 
