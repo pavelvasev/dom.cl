@@ -220,7 +220,7 @@ obj "input"
     :}
 }
 
-obj "checkbox" {
+obj "input_checkbox" {
     in {
         init_value: cell true
     }
@@ -234,4 +234,32 @@ obj "checkbox" {
     react (event @output "change") {: evt |
         self.value.submit( evt.target.checked ? true : false )
     :}    
+}
+
+obj "checkbox" {
+    in {
+        text: cell ""
+        init_value: cell true
+    }
+
+    tree: tree_node
+
+    is_element: cell
+    value: cell
+
+    output := element "label" { 
+      cb: input_checkbox init_value=@init_value //checked=true
+      bind @cb.value @value
+      element "span" @text
+    }
+}
+
+obj "column" {
+  in { 
+     style: cell ""
+     cf&:cell 
+  }
+  tree: tree_node
+  is_element: cell
+  output := element "div" style=( + "display: flex; flex-direction: column; " @style) cf=@cf
 }
