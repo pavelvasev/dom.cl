@@ -2,6 +2,7 @@ import std="std" dom="dom"
 
 obj "box" {
   in { cf&:cell }
+  imixin { tree_node }
   output := dom.element "div" style="display: flex; flex-direction: column; border: 1px solid;" cf=@cf
 }
 

@@ -13,7 +13,7 @@ obj "element"
         named_rest**: cell
     }
 
-    tree: tree_node
+    imixin { tree_node }
 
     output: cell
 
@@ -105,11 +105,11 @@ obj "element"
         let res = []
         for (let ch of children) {
             // todo вроде как не надо уже
-            if (!ch.is_element) continue
+            // if (!ch.is_element) continue
             res.push( ch.output )
         }
         return res
-      :} @self.tree.children
+      :} @self.children
 
 /*
     child_elem_outputs := map @self.children {: ch | 
@@ -202,7 +202,8 @@ obj "input"
     }
     // кстати вопрос а зачем нам результат работы дом-элемента держать в output?
 
-    tree: tree_node // tree_child? неа нода - он же element в поддереве держит
+    //tree: tree_node // tree_child? неа нода - он же element в поддереве держит
+    imixin { tree_node }
     
     output := elem: element "input" @text @style type=@type value=@init_value **named_rest
     // todo value отрабатывать самим, не грузить рест
@@ -224,7 +225,7 @@ obj "input_checkbox" {
     in {
         init_value: cell true
     }
-    tree: tree_node
+    imixin { tree_node }
 
     output := input "checkbox" checked=@init_value
     is_element: cell
@@ -242,7 +243,7 @@ obj "checkbox" {
         init_value: cell true
     }
 
-    tree: tree_node
+    imixin { tree_node }
 
     is_element: cell
     value: cell
@@ -259,7 +260,7 @@ obj "column" {
      style: cell ""
      cf&:cell 
   }
-  tree: tree_node
+  imixin { tree_node }
   is_element: cell
   output := element "div" style=( + "display: flex; flex-direction: column; " @style) cf=@cf
 }
