@@ -197,7 +197,7 @@ obj "input"
         type: cell "range"
         text: cell
         style: cell
-        init_value: cell 1
+        input_value: cell 1
         named_rest**: cell
     }
     // кстати вопрос а зачем нам результат работы дом-элемента держать в output?
@@ -205,22 +205,24 @@ obj "input"
     //tree: tree_node // tree_child? неа нода - он же element в поддереве держит
     imixin { tree_node }
     
-    output := elem: element "input" @text @style type=@type value=@init_value **named_rest
+    output := elem: element "input" @text @style type=@type value=@input_value **named_rest
     // todo value отрабатывать самим, не грузить рест
 
     is_element: cell
 
     value: cell
 
-    bind @init_value @value // вот тут противоречие что у нас 2 источника получается для value..
+    bind @input_value @value 
+    // вот тут противоречие что у нас 2 источника получается для value..
     // init_value и события от дом
-
-    
-    react (event @output "input") {: evt |
+    // input это интерактивное
+    react (event @output "change") {: evt |
         self.value.submit( evt.target.value )
     :}
 }
 
+// input_checkbox это тупняк. надо инпут с кустомным полем значения. например
+// input "checkbox" field="checked"
 obj "input_checkbox" {
     in {
         init_value: cell true
@@ -234,7 +236,7 @@ obj "input_checkbox" {
 
     react (event @output "change") {: evt |
         self.value.submit( evt.target.checked ? true : false )
-    :}    
+    :}
 }
 
 obj "checkbox" {
@@ -263,4 +265,27 @@ obj "column" {
   imixin { tree_node }
   is_element: cell
   output := element "div" style=( + "display: flex; flex-direction: column; " @style) cf=@cf
+}
+
+obj "row" {
+  in { 
+     style: cell ""
+     cf&:cell 
+  }
+  imixin { tree_node }
+  is_element: cell
+  output := element "div" style=( + "display: flex; flex-direction: row; " @style) cf=@cf
+}
+
+// https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-column-row
+// https://markheath.net/post/simple-tables-with-css-grid-layout !!!!
+obj "grid" {
+  in { 
+     tag: cell "div"
+     style: cell ""
+     cf&:cell 
+  }
+  imixin { tree_node }
+  is_element: cell
+  output := element @tag style=( + "display: grid; " @style) cf=@cf
 }
