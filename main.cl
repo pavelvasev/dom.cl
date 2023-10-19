@@ -213,10 +213,16 @@ obj "input"
     value: cell
 
     bind @input_value @value 
+    // не надо биндить входное на выходное
+    // выходное у нас это то что пользователь указывает.
+
+    // но тогда надо прорабатывать any для реакта..
+
     // вот тут противоречие что у нас 2 источника получается для value..
     // init_value и события от дом
     // input это интерактивное
     react (event @output "change") {: evt |
+        //console.log("output change",evt.target.value)
         self.value.submit( evt.target.value )
     :}
 }
@@ -289,3 +295,32 @@ obj "grid" {
   is_element: cell
   output := element @tag style=( + "display: grid; " @style) cf=@cf
 }
+
+// https://stackoverflow.com/a/30832210
+func "download" {: data filename type | 
+// Function to download data to a file
+    var file = new Blob([data], {type: type || "application/octet-binary"});
+    if (window.navigator.msSaveOrOpenBlob) // IE10+
+        window.navigator.msSaveOrOpenBlob(file, filename);
+    else { // Others
+        var a = document.createElement("a"),
+                url = URL.createObjectURL(file);
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);  
+        }, 0);
+    }
+:}
+
+// возвращает параметры из текущего урля в форме объекта
+// url_query_params => { "a": 5", "b": 17}
+func "url_query_params" {:
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  return Object.fromEntries( urlParams )  
+:}
+
