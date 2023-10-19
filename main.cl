@@ -6,6 +6,7 @@ obj "element"
         tag: cell "div"
         text: cell
         style: cell
+        //class: cell
         //dom_parent: cell // @self.parent
         // это cl-объект с output в котором dom
         cf&: cell // дети
@@ -135,7 +136,17 @@ obj "element"
         self_dom.style = t
     :}
 
-    react @self.style @set_style    
+    react @self.style @set_style 
+
+/*
+    func "set_class" {: t | 
+        //console.log('setting text',t)
+        let self_dom = self.output.get()
+        self_dom.className = t
+    :}
+
+    react @self.class @set_class
+*/    
 
     // передадим прочие именованные параметры напрямую в дом
     
@@ -263,6 +274,7 @@ obj "checkbox" {
     }
 }
 
+// чтобы не росла flex-колонка от контента ставить стиль min-width:0;
 obj "column" {
   in { 
      style: cell ""
