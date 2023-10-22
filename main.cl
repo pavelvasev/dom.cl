@@ -6,6 +6,7 @@ obj "element"
         tag: cell "div"
         text: cell
         style: cell
+        visible: cell true
         //class: cell
         //dom_parent: cell // @self.parent
         // это cl-объект с output в котором dom
@@ -133,10 +134,20 @@ obj "element"
     func "set_style" {: t |
         //console.log('setting style',t)
         let self_dom = self.output.get()
+
+        if (self.visible.is_set && !self.visible.get()) {
+            t = t + "; display: none;"
+        } 
+
         self_dom.style = t
     :}
 
     react @self.style @set_style 
+    // visible бывает еще не рассчиталось и мы тогда считаем что visible чтоб не тормозить
+    // хотя быть может стоит и вовсе быть не-visible тогда
+    react (list @self.style @visible @output) {: args |
+        set_style( args[0] )
+    :}    
 
 /*
     func "set_class" {: t | 
@@ -146,6 +157,15 @@ obj "element"
     :}
 
     react @self.class @set_class
+*/
+
+/*
+    react (list @self.visible @output) {: args |
+        let self_dom = self.output.get()
+        let val = args[0] ? 'visible' : 'hidden'
+        console.log("vv",args[0],val)
+        self_dom.style.visibility = val
+    :}
 */    
 
     // передадим прочие именованные параметры напрямую в дом
@@ -326,11 +346,14 @@ obj "grid" {
   in { 
      tag: cell "div"
      style: cell ""
-     cf&:cell 
+     visible: cell true
+     cf&:cell     
+     //named_rest**: cell
   }
   imixin { tree_node }
-  is_element: cell
-  output := element @tag style=( + "display: grid; " @style) cf=@cf
+  
+  output := element @tag style=( + "display: grid; " @style) cf=@cf visible=@visible
+  //**named_rest 
 }
 
 // https://stackoverflow.com/a/30832210
@@ -361,3 +384,54 @@ func "url_query_params" {:
   return Object.fromEntries( urlParams )  
 :}
 
+/* устанавливает свойство "стиля" всем элементам (на глубину 1)
+  set_style "color: white;" "tag_type" {
+    dom.element "...."
+    dom.element "...."
+  }
+  напрашивается обощение:
+  set style="color: white;" { ... }
+  set style="color: white;" @target_list
+*/
+
+// но вообще мб его сделать формой
+mixin "tree_lift"
+obj "set_style" {
+    in {
+        style: cell
+        filter: cell false
+        ch&: cell
+    }
+    apply_children @ch
+
+    react (list @self.children @style @filter) {: args |
+        let c = args[0]
+        let s = args[1]
+        let f = args[2]
+        if (typeof(f) == "string")
+            f = ( elem ) => elem.tag && elem.tag.get() == args[2];
+
+        for (let k of c) {
+            if (f(k)) {
+                k.style.submit(s)
+            }
+        }
+    :}
+}
+
+mixin "tree_lift"
+process "generate_tabs" {
+    in {
+        input: cell [] // имена
+        input_index: cell 0 
+    }
+    output: cell 0 // что кликнули
+
+    repeater @input { name index |
+       e: element "button" @name
+       react (event @e.output "click") {:
+         //console.log("clicked",index)
+         output.submit( index )
+       :}
+    }
+}
