@@ -174,7 +174,7 @@ obj "element"
          //console.log("see named-rest",val)
          let dom = self.output.get()
          for (let k in val) {
-            //console.log(k)
+            console.log(k,val[k])
             dom[ k ] = val[k]
          }
     :}
@@ -434,4 +434,30 @@ process "generate_tabs" {
          output.submit( index )
        :}
     }
+}
+
+// select [ ["title","value"],["title","value"] ] input_index=1
+mixin "tree_lift"
+process "select" {
+    in {
+        input: cell []
+        input_index: cell 0
+    }
+    ds: element "select" selectedIndex=@input_index
+    {
+        repeater @input { rec |
+            element "option" (get @rec 0) value=(get @rec 1)
+        }
+    }
+
+    //react @input_index { v | print "vvvv=" @v }
+
+    output: cell
+    index: cell
+
+    react (event @ds.output "change") {: evt |
+        console.log("sel output change",evt)
+        self.output.submit( evt.target.value )
+    :}
+    //react (list @output @input_value {: val | output.set( )}
 }
