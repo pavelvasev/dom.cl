@@ -25,7 +25,7 @@ obj "element"
 
     init {:
 
-        self.is_element = true
+        //self.is_element = true
 
         function f() {
             let tagname = tag.get()
@@ -209,6 +209,7 @@ obj "input"
         text: cell
         style: cell
         input_value: cell 1
+        //tag: cell "input"
         named_rest**: cell
     }
     // кстати вопрос а зачем нам результат работы дом-элемента держать в output?
@@ -218,8 +219,6 @@ obj "input"
     
     output := elem: element "input" @text @style type=@type value=@input_value **named_rest
     // todo value отрабатывать самим, не грузить рест
-
-    is_element: cell
 
     value: cell
 
@@ -236,6 +235,32 @@ obj "input"
         //console.log("output change",evt.target.value)
         self.value.submit( evt.target.value )
     :}
+}
+
+// получается создана только ради value
+obj "textarea"
+{
+    in {
+        input_value: cell ""        
+        style: cell ""
+        named_rest**: cell        
+    }
+    imixin { tree_node }
+    
+    output := elem: element "textarea" style=@style value=@input_value **named_rest
+
+    //print "oooo=" @output
+
+    value: cell
+    //changing: channel
+
+    //bind @input_value @value // эх
+
+    react (event @output "input") {: evt |
+        self.value.submit( evt.target.value )
+    :}
+
+   
 }
 
 // input_checkbox это тупняк. надо инпут с кустомным полем значения. например
