@@ -174,7 +174,7 @@ obj "element"
          //console.log("see named-rest",val)
          let dom = self.output.get()
          for (let k in val) {
-            console.log(k,val[k])
+            //console.log(k,val[k])
             dom[ k ] = val[k]
          }
     :}
