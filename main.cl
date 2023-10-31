@@ -4,8 +4,8 @@ obj "element"
 {
     in {
         tag: cell "div"
-        text: cell
-        style: cell
+        text: cell ""
+        style: cell ""
         visible: cell true
         //class: cell
         //dom_parent: cell // @self.parent
@@ -226,8 +226,8 @@ obj "input"
 {
     in {
         type: cell "range"
-        text: cell
-        style: cell
+        text: cell ""
+        style: cell ""
         input_value: cell 1
         //tag: cell "input"
         named_rest**: cell
