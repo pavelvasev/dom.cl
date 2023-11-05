@@ -4,8 +4,8 @@ obj "element"
 {
     in {
         tag: cell "div"
-        text: cell ""
-        style: cell ""
+        text: cell false
+        style: cell false
         visible: cell true
         //class: cell
         //dom_parent: cell // @self.parent
@@ -35,7 +35,8 @@ obj "element"
             //if (existing) existing.remove()
             if (existing) throw new Error( 'dom: element already created')
             if (!tag.is_set) {
-                output.set( null )
+                if (self.output.is_set)
+                    output.set( null )
                 return
             }
 
@@ -88,12 +89,18 @@ obj "element"
 */    
 
     func "sync_children" {: children |
-        //console.log("sync_children", self+'')
+        
         let parent = self
         let parent_dom = parent.output.get()        
+
+        //console.log("sync_children","parent_dom=",parent_dom,"ch=",children)
+
         for (let child_dom of children) {
             //console.log('checking ',child_dom)
-            if (!(child_dom instanceof Element)) continue
+            if (!(child_dom instanceof Element)) {
+                //console.log("not element, skipping")
+                continue
+            } 
             //console.log("sync_children appends",child_dom)
             parent_dom.appendChild( child_dom )
         }
@@ -122,17 +129,26 @@ obj "element"
           | filter {: elem | return elem ? true : false :}
 */
 
-    func "set_text" {: t | 
-        //console.log('setting text',t)
+    func "set_text" {: //t |        
+        let t = self.text.get()        
+        if (t === false) return;
+        // опасная операция - стирает детей
         let self_dom = self.output.get()
-        self_dom.textContent = t
+        
+        if (self.output.is_set && self_dom) {
+            //console.log('setting text',t,"to",self_dom)
+            self_dom.textContent = t
+        } //else console.log('!!!!!!!! SKIP setting text',t,"to",self_dom)
     :}
 
-    react @self.text @set_text
-    
+    //react @self.text @set_text
+    //react @self.output @set_text
+    react (list @self.text @self.output) @set_text
 
-    func "set_style" {: t |
+    func "set_style" {: //t |
         //console.log('setting style',t)
+        let t = self.style.get()   
+        if (t === false) return;
         let self_dom = self.output.get()
 
         if (self.visible.is_set && !self.visible.get()) {
@@ -142,7 +158,7 @@ obj "element"
         self_dom.style = t
     :}
 
-    react @self.style @set_style 
+    //react @self.style @set_style 
     // visible бывает еще не рассчиталось и мы тогда считаем что visible чтоб не тормозить
     // хотя быть может стоит и вовсе быть не-visible тогда
     react (list @self.style @visible @output) {: args |
@@ -170,16 +186,16 @@ obj "element"
 
     // передадим прочие именованные параметры напрямую в дом
     
+    //react (list @output @named_rest) {: args |
     react @named_rest {: val |
-         //console.log("see named-rest",val)
+         //let val = args[1]         
          let dom = self.output.get()
+         //console.log("see named-rest",dom,val)
          for (let k in val) {
             //console.log(k,val[k])
             dom[ k ] = val[k]
          }
     :}
-
-
 }
 
 // создаёт канал из канала дом-события
@@ -305,6 +321,7 @@ obj "checkbox" {
     in {
         text: cell ""
         init_value: cell true
+        cf&: cell
     }
 
     imixin { tree_node }
@@ -316,6 +333,7 @@ obj "checkbox" {
       cb: input_checkbox init_value=@init_value //checked=true
       bind @cb.value @value
       element "span" @text
+      apply_children @cf
     }
 }
 
@@ -436,27 +454,51 @@ process "generate_tabs" {
     }
 }
 
+process "novalue" 
+{
+    output: cell
+}
+
 // select [ ["title","value"],["title","value"] ] input_index=1
 mixin "tree_lift"
 process "select" {
     in {
         input: cell []
-        input_index: cell 0
+        input_index: cell novalue=true
+        input_value: cell novalue=true
     }
-    ds: element "select" selectedIndex=@input_index
+    ds: element "select" // этого мало - после изменения списка детей надо обновлять. selectedIndex=@input_index
     {
         repeater @input { rec |
             element "option" (get @rec 0) value=(get @rec 1)
         }
     }
 
+    react (list @ds.children @input_value) {: args |
+        let dom = ds.output.get()
+        //console.log("setting to dom",dom,"value",input_value.get())
+        //let v = input_value.get()
+        let v = args[1]
+        dom.value = v
+    :}
+
+    react (list @ds.children @input_index) {: args |
+        let dom = ds.output.get()
+        //console.log("setting to dom",dom,"value",input_value.get())
+        //let v = input_value.get()
+        let v = args[1]
+        dom.selectedIndex = v
+    :}    
+
     //react @input_index { v | print "vvvv=" @v }
 
     output: cell
     index: cell
+    //value: cell
+    //bind @output @value
 
     react (event @ds.output "change") {: evt |
-        console.log("sel output change",evt)
+        //console.log("sel output change",evt)
         self.output.submit( evt.target.value )
     :}
     //react (list @output @input_value {: val | output.set( )}
