@@ -341,21 +341,25 @@ obj "checkbox" {
 obj "column" {
   in { 
      style: cell ""
+     named_rest**: cell
      cf&:cell 
   }
   imixin { tree_node }
   is_element: cell
-  output := element "div" style=( + "display: flex; flex-direction: column; " @style) cf=@cf
+  output := element "div" style=( + "display: flex; flex-direction: column; " @style) 
+    cf=@cf **named_rest
 }
 
 obj "row" {
   in { 
      style: cell ""
-     cf&:cell 
+     named_rest**: cell
+     cf&:cell
   }
   imixin { tree_node }
   is_element: cell
-  output := element "div" style=( + "display: flex; flex-direction: row; " @style) cf=@cf
+  output := element "div" style=( + "display: flex; flex-direction: row; " @style) 
+     cf=@cf **named_rest
 }
 
 // https://css-tricks.com/snippets/css/complete-guide-grid/#prop-grid-column-row
@@ -365,13 +369,13 @@ obj "grid" {
      tag: cell "div"
      style: cell ""
      visible: cell true
+     named_rest**: cell
      cf&:cell     
-     //named_rest**: cell
   }
   imixin { tree_node }
   
-  output := element @tag style=( + "display: grid; " @style) cf=@cf visible=@visible
-  //**named_rest 
+  output := element @tag style=( + "display: grid; " @style) cf=@cf visible=@visible 
+    **named_rest  
 }
 
 // https://stackoverflow.com/a/30832210
@@ -454,10 +458,12 @@ process "generate_tabs" {
     }
 }
 
+/*
 process "novalue" 
 {
     output: cell
 }
+*/
 
 // select [ ["title","value"],["title","value"] ] input_index=1
 mixin "tree_lift"
