@@ -244,7 +244,7 @@ obj "input"
         type: cell "range"
         text: cell ""
         style: cell ""
-        input_value: cell 1
+        input_value: channel
         //tag: cell "input"
         named_rest**: cell
     }
@@ -253,8 +253,12 @@ obj "input"
     //tree: tree_node // tree_child? неа нода - он же element в поддереве держит
     imixin { tree_node }
     
-    output := elem: element "input" @text @style type=@type value=@input_value **named_rest
-    // todo value отрабатывать самим, не грузить рест
+    output := elem: element "input" @text @style type=@type **named_rest
+
+    // done: value отрабатывать самим, не грузить рест
+    react @input_value {: val |
+        output.get().value = val
+    :}
 
     value: cell
 
@@ -268,8 +272,17 @@ obj "input"
     // init_value и события от дом
     // input это интерактивное
     react (event @output "change") {: evt |
-        //console.log("output change",evt.target.value)
+        //console.log("input change",evt.target.value)
         self.value.submit( evt.target.value )
+    :}
+
+    enter: channel
+    react (event @output "keydown") {: evt |
+        if(evt.keyCode == 13) {
+            self.value.submit( evt.target.value )
+            self.enter.submit( evt.target.value )
+        }
+        //console.log("input change",evt.target.value)        
     :}
 }
 
