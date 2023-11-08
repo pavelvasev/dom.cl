@@ -290,15 +290,19 @@ obj "input"
 obj "textarea"
 {
     in {
-        input_value: cell ""        
+        input_value: channel
         style: cell ""
         named_rest**: cell        
     }
     imixin { tree_node }
     
-    output := elem: element "textarea" style=@style value=@input_value **named_rest
+    output := elem: element "textarea" style=@style **named_rest
 
-    //print "oooo=" @output
+    react @input_value {: val |
+        let dom = output.get()        
+        dom.value = val;        
+        //console.log(`setted val='${val}'`)        
+    :}
 
     value: cell
     //changing: channel
@@ -309,7 +313,33 @@ obj "textarea"
         self.value.submit( evt.target.value )
     :}
 
+    enter: channel
+    react (event @output "keydown") {: evt |
+        //console.log(evt)
+        if(evt.keyCode == 13) {
+            // остаемся вводить
+            if (evt.shiftKey || evt.ctrlKey) return;
+
+            evt.preventDefault();
+
+            self.value.submit( evt.target.value )
+            self.enter.submit( evt.target.value )
+
+        }
+        //console.log("input change",evt.target.value)        
+    :}  
    
+}
+
+process "textarea_auto_height" {
+    in {
+        input: cell
+    }
+    react (event @input "input") {: event |
+      let dom = event.target;
+        dom.style.height = 'auto';
+        dom.style.height = dom.scrollHeight + 'px';
+    :}
 }
 
 // input_checkbox это тупняк. надо инпут с кустомным полем значения. например
