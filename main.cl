@@ -487,7 +487,7 @@ obj "set_style" {
 mixin "tree_lift"
 process "generate_tabs" {
     in {
-        input: cell [] // имена
+        input: cell [] // список имен
         input_index: cell 0
         style: cell ""
         style_selected: cell ""
@@ -571,8 +571,10 @@ process "select" {
 
     output: cell
     index: cell
-    //value: cell
-    //bind @output @value
+
+    // ладно уж
+    value: cell
+    bind @output @value
 
     react (event @ds.output "change") {: evt |
         //console.log("sel output change",evt)
