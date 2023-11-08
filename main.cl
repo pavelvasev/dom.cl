@@ -458,17 +458,45 @@ mixin "tree_lift"
 process "generate_tabs" {
     in {
         input: cell [] // имена
-        input_index: cell 0 
+        input_index: cell 0
+        style: cell ""
+        style_selected: cell ""
+        class_normal: cell ""
+        class_selected: cell ""
+        named_rest**: cell
     }
     output: cell 0 // что кликнули
 
     repeater @input { name index |
-       e: element "button" @name
+       e: element "button" @name 
+             **named_rest 
+             style=(+ @style (if (@index == @output) @style_selected))
+             className=(+ @class_normal " " (if (@index == @output) @class_selected))
+
        react (event @e.output "click") {:
          //console.log("clicked",index)
          output.submit( index )
        :}
     }
+
+    /*
+    react @output {: o |
+        if (!self.children.is_set) return;
+
+        let cc = self.children.get()
+        let j = 0;
+        for (let c of cc) {
+            let dom = c.output.get();
+            if (dom) {
+              if (j == o)  
+                dom.classList.add("generate_tabs_selected")
+              else  
+                dom.classList.remove("generate_tabs_selected")
+            }
+            j++
+        }
+    :}
+    */
 }
 
 /*
