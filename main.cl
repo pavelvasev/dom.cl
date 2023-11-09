@@ -1,5 +1,16 @@
 import std="std"
 
+/* 
+   особенности
+
+   * активно применяем style - прямой выход на css. не изобретаем свой язык стилей как qml/viewlang/etc.
+
+   идеи
+   * style=(dict .... ) и приводить к строке, соединяя через ;
+   * генератор элементов. если в модуле обращаются к неизвестному то срабатывает default-объект с параметром-типом.
+
+*/
+
 obj "element"
 {
     in {
@@ -353,6 +364,10 @@ obj "input_checkbox" {
     output := input "checkbox" checked=@init_value
     is_element: cell
     value: cell
+    // все-таки value должно быть когда пользователь что-то поделал?
+    // попробуем такой режим.. пока пользователь ничего не делал то и значения нет.
+    // хотя.. может быть это значение потом используют в формулах, а так оно зависнет
+    // хм..
     bind @init_value @value
 
     react (event @output "change") {: evt |
@@ -581,4 +596,23 @@ process "select" {
         self.output.submit( evt.target.value )
     :}
     //react (list @output @input_value {: val | output.set( )}
+}
+
+
+// очен часто нужна button. и click к ней.
+obj "button" {
+  in { 
+     text: cell
+     callback: cell {: :}
+     style: cell ""
+     visible: cell true
+     named_rest**: cell
+  }
+  imixin { tree_lift }
+  
+  output := element "button" @text style=@style visible=@visible **named_rest  
+  click: channel
+
+  bind (event @output "click") @click
+  react @click @callback
 }
