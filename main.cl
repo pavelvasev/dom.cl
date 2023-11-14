@@ -255,7 +255,7 @@ obj "input"
         type: cell "range"
         text: cell ""
         style: cell ""
-        input_value: channel
+        input_value: channel // мб init_value? а то input смешивается с дом-названием
         //tag: cell "input"
         named_rest**: cell
     }
