@@ -399,24 +399,26 @@ obj "checkbox" {
 obj "column" {
   in { 
      style: cell ""
+     visible: cell true
      named_rest**: cell
      cf&:cell 
   }
   imixin { tree_node }
   is_element: cell
-  output := element "div" style=( + "display: flex; flex-direction: column; " @style) 
+  output := element "div" style=( + "display: flex; flex-direction: column; " @style) visible=@visible  
     cf=@cf **named_rest
 }
 
 obj "row" {
   in { 
      style: cell ""
+     visible: cell true
      named_rest**: cell
      cf&:cell
   }
   imixin { tree_node }
   is_element: cell
-  output := element "div" style=( + "display: flex; flex-direction: row; " @style) 
+  output := element "div" style=( + "display: flex; flex-direction: row; " @style) visible=@visible 
      cf=@cf **named_rest
 }
 
