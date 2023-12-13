@@ -311,7 +311,8 @@ obj "textarea"
 
     react @input_value {: val |
         let dom = output.get()        
-        dom.value = val;        
+        dom.value = val;
+        value.submit( val )
         //console.log(`setted val='${val}'`)        
     :}
 
@@ -617,4 +618,16 @@ obj "button" {
 
   bind (event @output "click") @click
   react @click @callback
+}
+
+mixin "tree_lift"
+process "dark_theme" {
+    output := element "style" `
+        body {
+            background: #353535;
+            color: white;
+        }
+        textarea {
+            background: #727272;
+        }`
 }
