@@ -639,14 +639,12 @@ process "dark_theme" {
         }`
 }
 
-// регистрирует custom-компоненты
-// https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
-// dom.make_custom_component "cl-main" "main"
-// и вроде это даже гибче чем через модификаторы-декораторы..
-process "custom" {
+/* первая попытка не удалась ввиду того что по cl_process_name
+   не получался доступ к функции создания объекта.
+process "custom1" {
   in {
     html_name: const
-    cl_process_name: const
+    cl_process_name: cell
     passed_attrs: const []
   }
   init {:
@@ -656,7 +654,8 @@ process "custom" {
       constructor() {
         // Always call super first in constructor
         super();
-        
+
+        debugger 
         let fn = eval("create_"+cl_process_name); // пока так
         this.cl_item = fn({})
         this.cl_item.output.changed.subscribe( elem => {
@@ -670,6 +669,61 @@ process "custom" {
           cell.submit( newValue )
       }      
     }
-    customElements.define(html_name, ClItem);    
+    customElements.define(html_name, ClItem);
   :}
 }
+*/
+
+// регистрирует custom-компоненты
+// https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
+// dom.make_custom_component "cl-main" "main"
+// и вроде это даже гибче чем через модификаторы-декораторы..
+
+transform "custom" {: i objs state C|
+  
+  let obj = objs[i]
+  let next_objs = C.objs2objs( objs.slice(i+1), state )
+  let next_obj = next_objs[0] //objs[i+1]
+
+  //next_obj.params.base_code = `create_${obj.params[0]}({})`
+  //console.log("heee",{next_obj})
+  let params = C.get_obj_params( next_obj, C.get_children( next_obj,1 ) )
+  //console.log('see params=',params)
+  let passing_params = Object.keys( params.params )
+
+  let name = next_obj.params[0]
+  let html_name = obj.params[0]
+
+  let class_name = `ClItem_${name}`
+
+  let code = `
+    // dom.custom "${html_name}" generated:
+    class ${class_name} extends HTMLElement {
+      static observedAttributes = ${JSON.stringify(passing_params)};
+
+      constructor() {
+        // Always call super first in constructor
+        super();
+
+        debugger 
+        let fn = create_${name}; // пока так
+        this.cl_item = fn({})
+        this.cl_item.output.changed.subscribe( elem => {
+          this.appendChild( elem )
+        })
+      }
+      attributeChangedCallback(name, oldValue, newValue) {
+        let cell = this.cl_item[name]
+        if (cell && cell.submit)
+          cell.submit( newValue )
+      }
+    }
+    customElements.define("${html_name}", ${class_name});
+    // finita
+  `
+
+  let xtra = state.tool.parse( `paste '${code}'` )
+  //console.log("generated",xtra)
+
+  return [i, objs.slice( 0,i ).concat( next_objs ).concat( xtra )]
+:}
