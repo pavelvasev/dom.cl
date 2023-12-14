@@ -272,8 +272,10 @@ obj "input"
     :}
 
     value: cell
+    interactive_value: cell
 
     bind @input_value @value 
+    bind @input_value @interactive_value
     // не надо биндить входное на выходное
     // выходное у нас это то что пользователь указывает.
 
@@ -285,6 +287,11 @@ obj "input"
     react (event @output "change") {: evt |
         //console.log("input change",evt.target.value)
         self.value.submit( evt.target.value )
+    :}
+
+    react (event @output "input") {: evt |
+        //console.log("input change",evt.target.value)
+        self.interactive_value.submit( evt.target.value )
     :}
 
     enter: channel
@@ -630,4 +637,39 @@ process "dark_theme" {
         textarea {
             background: #727272;
         }`
+}
+
+// регистрирует custom-компоненты
+// https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
+// dom.make_custom_component "cl-main" "main"
+// и вроде это даже гибче чем через модификаторы-декораторы..
+process "custom" {
+  in {
+    html_name: const
+    cl_process_name: const
+    passed_attrs: const []
+  }
+  init {:
+    class ClItem extends HTMLElement {
+      static observedAttributes = passed_attrs;
+
+      constructor() {
+        // Always call super first in constructor
+        super();
+        
+        let fn = eval("create_"+cl_process_name); // пока так
+        this.cl_item = fn({})
+        this.cl_item.output.changed.subscribe( elem => {
+          this.appendChild( elem )
+        })
+      }
+      attributeChangedCallback(name, oldValue, newValue) {
+        //console.log(`Attribute ${name} has changed from ${oldValue} to ${newValue}.`);
+        let cell = this.cl_item[name]
+        if (cell && cell.submit)
+          cell.submit( newValue )
+      }      
+    }
+    customElements.define(html_name, ClItem);    
+  :}
 }
