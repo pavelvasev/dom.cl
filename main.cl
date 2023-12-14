@@ -706,7 +706,6 @@ transform "custom" {: i objs state C|
         // Always call super first in constructor
         super();
 
-        debugger 
         let fn = create_${name}; // пока так
         this.cl_item = fn({})
         this.cl_item.output.changed.subscribe( elem => {
