@@ -674,6 +674,7 @@ process "custom1" {
 }
 */
 
+// F-CUSTOM
 // регистрирует custom-компоненты
 // https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
 // dom.make_custom_component "cl-main" "main"
