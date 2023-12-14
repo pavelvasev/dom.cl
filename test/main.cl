@@ -1,4 +1,4 @@
-import std="std" dom="dom"
+import std="std" dom="dom.cl"
 
 obj "box" {
   in { cf&:cell }
