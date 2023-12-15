@@ -353,11 +353,13 @@ obj "textarea"
 process "textarea_auto_height" {
     in {
         input: cell
+        limit: cell 250
     }
     react (event @input "input") {: event |
       let dom = event.target;
+        let new_h = Math.min( limit.get(), dom.scrollHeight )
         dom.style.height = 'auto';
-        dom.style.height = dom.scrollHeight + 'px';
+        dom.style.height = new_h + 'px';
     :}
 }
 
