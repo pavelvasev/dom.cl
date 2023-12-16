@@ -606,6 +606,7 @@ process "select" {
     react (event @ds.output "change") {: evt |
         //console.log("sel output change",evt)
         self.output.submit( evt.target.value )
+        self.index.submit( evt.target.selectedIndex )
     :}
     //react (list @output @input_value {: val | output.set( )}
 }
