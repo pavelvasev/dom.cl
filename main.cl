@@ -389,6 +389,7 @@ obj "checkbox" {
     in {
         text: cell ""
         init_value: cell true
+        named_rest**: cell
         cf&: cell
     }
 
@@ -397,7 +398,7 @@ obj "checkbox" {
     is_element: cell
     value: cell
 
-    output := element "label" { 
+    output := element "label" **named_rest { 
       cb: input_checkbox init_value=@init_value //checked=true
       bind @cb.value @value
       element "span" @text
@@ -570,11 +571,12 @@ process "select" {
         input: cell []
         input_index: cell novalue=true
         input_value: cell novalue=true
+        named_rest**: cell
     }
-    ds: element "select" // этого мало - после изменения списка детей надо обновлять. selectedIndex=@input_index
+    ds: element "select" **named_rest // этого мало - после изменения списка детей надо обновлять. selectedIndex=@input_index
     {
         repeater @input { rec |
-            element "option" (get @rec 0) value=(get @rec 1)
+            element "option" (get @rec 0) value=(get @rec 1) 
         }
     }
 
