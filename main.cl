@@ -1,5 +1,5 @@
 import std="std"
-
+  
 /* 
    особенности
 
@@ -10,7 +10,7 @@ import std="std"
    * генератор элементов. если в модуле обращаются к неизвестному то срабатывает default-объект с параметром-типом.
 
 */
-
+  
 obj "element"
 {
     in {
@@ -350,6 +350,7 @@ obj "textarea"
    
 }
 
+// https://css-tricks.com/the-cleanest-trick-for-autogrowing-textareas/ ?
 process "textarea_auto_height" {
     in {
         input: cell
@@ -357,7 +358,11 @@ process "textarea_auto_height" {
     }
     react (event @input "input") {: event |
       let dom = event.target;
-        let new_h = Math.min( limit.get(), dom.scrollHeight )
+      //console.log("dom.scrollHeight=",dom.scrollHeight)
+      //console.o
+        //let new_h = Math.min( limit.get(), dom.scrollHeight )
+        //dom.style.boxSizing = 'border-box'; // так надо
+        let new_h = dom.scrollHeight
         dom.style.height = 'auto';
         dom.style.height = new_h + 'px';
     :}
@@ -646,6 +651,8 @@ process "dark_theme" {
 
 /* первая попытка не удалась ввиду того что по cl_process_name
    не получался доступ к функции создания объекта.
+// dom.make_custom_component "cl-main" "main"
+// и вроде это даже гибче чем через модификаторы-декораторы..   
 process "custom1" {
   in {
     html_name: const
@@ -682,8 +689,7 @@ process "custom1" {
 // F-CUSTOM
 // регистрирует custom-компоненты
 // https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
-// dom.make_custom_component "cl-main" "main"
-// и вроде это даже гибче чем через модификаторы-декораторы..
+// пример: dom.custom "cl-main" process { ... }
 
 transform "custom" {: i objs state C|
   
