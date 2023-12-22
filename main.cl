@@ -106,6 +106,9 @@ obj "element"
 
         //console.log("sync_children","parent_dom=",parent_dom,"ch=",children)
 
+        // F-REMOVE-FROM-DOM - удаляем узлы ид DOM те, что удалены из нашего поля children
+        let installed_children = new Set( parent_dom.children )
+
         for (let child_dom of children) {
             //console.log('checking ',child_dom)
             if (!(child_dom instanceof Element)) {
@@ -114,7 +117,10 @@ obj "element"
             } 
             //console.log("sync_children appends",child_dom)
             parent_dom.appendChild( child_dom )
+            installed_children.delete( child_dom )
         }
+        //console.log("detected more children: ",installed_children)
+        installed_children.forEach( c => parent_dom.removeChild( c ))
     :}
 
     react @xx.output @sync_children
