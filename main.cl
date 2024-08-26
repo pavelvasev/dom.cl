@@ -22,7 +22,8 @@ obj "element"
         //dom_parent: cell // @self.parent
         // это cl-объект с output в котором dom
         cf&: cell // дети
-        // все-бы rest-параметры прокинуть в dom..
+        
+        // все rest-параметры передаются как атрибуты в узел dom
         named_rest**: cell
     }
 
@@ -104,7 +105,7 @@ obj "element"
         let parent = self
         let parent_dom = parent.output.get()        
 
-        //console.log("sync_children","parent_dom=",parent_dom,"ch=",children)
+        //console.log("sync_children","parent_dom=",parent_dom,"children_dom=",children)
 
         // F-REMOVE-FROM-DOM - удаляем узлы ид DOM те, что удалены из нашего поля children
         let installed_children = new Set( parent_dom.children )
@@ -126,8 +127,8 @@ obj "element"
     react @xx.output @sync_children
     xx: xtract @child_elem_outputs // этим мы вытащили output-ы
 
-    child_elem_outputs := apply {: children |
-        //console.log("apply 1",self+'',children)
+    child_elem_outputs := apply {: children |        
+        //console.log("apply child_elem_outputs",self,children)
         let res = []
         for (let ch of children) {
             // todo вроде как не надо уже
@@ -136,15 +137,6 @@ obj "element"
         }
         return res
       :} @self.children
-
-/*
-    child_elem_outputs := map @self.children {: ch | 
-          //console.log("map arg",ch)
-          if (!ch.is_element) return false
-          return CL2.create_cell( ch.output ) // дорого!
-          :} 
-          | filter {: elem | return elem ? true : false :}
-*/
 
     func "set_text" {: //t |        
         let t = self.text.get()        
@@ -180,7 +172,7 @@ obj "element"
     // хотя быть может стоит и вовсе быть не-visible тогда
     react (list @self.style @visible @output) {: args |
         set_style( args[0] )
-    :}    
+    :}
 
 /*
     func "set_class" {: t | 
@@ -427,7 +419,7 @@ obj "column" {
   }
   imixin { tree_node }
   is_element: cell
-  output := element "div" style=( + "display: flex; flex-direction: column; " @style) visible=@visible  
+  output := host: element "div" style=( + "display: flex; flex-direction: column; " @style) visible=@visible  
     cf=@cf **named_rest
 }
 
@@ -440,7 +432,7 @@ obj "row" {
   }
   imixin { tree_node }
   is_element: cell
-  output := element "div" style=( + "display: flex; flex-direction: row; " @style) visible=@visible 
+  output := host: element "div" style=( + "display: flex; flex-direction: row; " @style) visible=@visible 
      cf=@cf **named_rest
 }
 
@@ -456,7 +448,7 @@ obj "grid" {
   }
   imixin { tree_node }
   
-  output := element @tag style=( + "display: grid; " @style) cf=@cf visible=@visible 
+  output := host: element @tag style=( + "display: grid; " @style) cf=@cf visible=@visible 
     **named_rest  
 }
 
@@ -579,7 +571,7 @@ process "novalue"
 mixin "tree_lift"
 process "select" {
     in {
-        input: cell []
+        input: cell [] // список вариантов
         input_index: cell novalue=true
         input_value: cell novalue=true
         named_rest**: cell
